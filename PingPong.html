@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ping Pong Game with Mouse and AI</title>
+  <style>
+    canvas {
+      display: block;
+      margin: auto;
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="pingPongCanvas" width="800" height="400"></canvas>
+
+<script>
+  const canvas = document.getElementById('pingPongCanvas');
+  const context = canvas.getContext('2d');
+
+  // Paddle dimensions
+  const paddleWidth = 10;
+  const paddleHeight = 100;
+
+  // Initial paddle positions
+  let playerPaddleY = canvas.height / 2 - paddleHeight / 2;
+  let computerPaddleY = canvas.height / 2 - paddleHeight / 2;
+
+  // Initial ball position and speed
+  let ballX = 50;
+  let ballY = 100;
+  let ballSpeedX = 5;
+  let ballSpeedY = 2;
+
+  function calculateMousePos(event) {
+    const rect = canvas.getBoundingClientRect();
+    const root = document.documentElement;
+    const mouseX = event.clientX - rect.left - root.scrollLeft;
+    const mouseY = event.clientY - rect.top - root.scrollTop;
+    return mouseY;
+  }
+
+  canvas.addEventListener('mousemove', function (event) {
+    playerPaddleY = calculateMousePos(event) - paddleHeight / 2;
+  });
+
+  function draw() {
+    // Clear the canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw player paddle
+    context.fillStyle = 'white';
+    context.fillRect(10, playerPaddleY, paddleWidth, paddleHeight);
+
+    // Draw computer paddle
+    context.fillRect(canvas.width - paddleWidth - 10, computerPaddleY, paddleWidth, paddleHeight);
+
+    // Draw the ball
+    context.beginPath();
+    context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
+    context.fill();
+
+    // Move the ball
+    ballX += ballSpeedX;
+    ballY += ballSpeedY;
+
+    // Bounce off the top and bottom walls
+    if (ballY < 0 || ballY > canvas.height) {
+      ballSpeedY = -ballSpeedY;
+    }
+
+    // Bounce off the paddles
+    if (
+      (ballX < paddleWidth + 10 && ballY > playerPaddleY && ballY < playerPaddleY + paddleHeight) ||
+      (ballX > canvas.width - paddleWidth - 20 && ballY > computerPaddleY && ballY < computerPaddleY + paddleHeight)
+    ) {
+      ballSpeedX = -ballSpeedX;
+    }
+
+    // Move the computer paddle towards the ball
+    if (ballY > computerPaddleY + paddleHeight / 2) {
+      computerPaddleY += 4;
+    } else {
+      computerPaddleY -= 4;
+    }
+
+    // Check for ball out of bounds
+    if (ballX < 0 || ballX > canvas.width) {
+      // Reset the ball position
+      ballX = canvas.width / 2;
+      ballY = canvas.height / 2;
+    }
+  }
+
+  setInterval(draw, 20); // Call the draw function every 20 milliseconds
+</script>
+
+</body>
+</html>
